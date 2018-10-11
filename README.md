@@ -1,2 +1,2 @@
 # laravel-laratrust
-Laratrust CMS
+Laratrust (5.6) CMS
