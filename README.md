@@ -1,0 +1,2 @@
+# laravel-laratrust
+Laratrust CMS
