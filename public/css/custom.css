@@ -1,0 +1,15 @@
+.danger{
+
+    background-color:#e1707026 !important;
+}
+
+.e404{
+
+width:50%;
+
+}
+
+.logo_hover:hover{
+
+    transform: scale(1.05);
+}
