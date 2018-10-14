@@ -237,7 +237,7 @@ $('#mymodal').on('show.bs.modal', function (event) {
                 success: function (data) {
 
                     swal("Done!", "New Role (s) Assigned", "success");
-                    window.location.reload('admin/users');
+                    window.location.reload();
 
                     }
             });
@@ -339,14 +339,9 @@ $(document).on('click', '.delBtn', function (e) {
                 success: function (data) {
 
                     console.log(data);
-                    //swal("Deleted!", "User Blocked", "success");
-                //    $('#tr-'+data).hide('slow',function(){
+                    swal("Deleted!", "User Blocked", "success");
 
-                //     $(this).remove();
-
-
-                //    });
-            //    window.location.reload();
+               window.location.reload();
                     }
             });
     });
