@@ -292,59 +292,6 @@ class SystemUserController extends Controller
         }
         $user->save();
 
-        if ($request->has('h_name')) {
-
-            $validatedData = $request->validate([
-                'h_name' => 'required|string|max:255',
-                'h_contact_number' => 'required|string|max:12',
-                'h_email' => 'email|required',
-                'h_address' => 'string|required|max:255',
-            ]);
-
-            if ($user->hospital == null) {
-
-                //saving hospital info
-                $hospital = new Hospital();
-                $hospital->name = $input['h_name'];
-                $hospital->contact_number = $input['h_contact_number'];
-                $hospital->email = $input['h_email'];
-                $hospital->address = $input['h_address'];
-
-                if ($request->hasFile('h_pic')) {
-
-                    $path = $request->file('h_pic')->store(
-                        'avatars', 'public'
-                    );
-                    $hospital->logo = $path;
-                } else {
-                    $path = 'avatars/noimage.png';
-                    $hospital->logo = $path;
-                }
-
-                $user->hospital()->save($hospital);
-            } else {
-
-                $hospital = Hospital::find($user->hospital->id);
-                $hospital->name = $input['h_name'];
-                $hospital->contact_number = $input['h_contact_number'];
-                $hospital->email = $input['h_email'];
-                $hospital->address = $input['h_address'];
-                if ($request->hasFile('h_pic')) {
-
-                    $path = $request->file('h_pic')->store(
-                        'avatars', 'public'
-                    );
-                    $hospital->logo = $path;
-                } else {
-                    $path = 'avatars/noimage.png';
-                }
-
-                $user->hospital()->save($hospital);
-
-            }
-
-        }
-
         $request->session()->flash('message.level', 'success');
         $request->session()->flash('message.content', 'User Updated');
         return redirect()->back();
