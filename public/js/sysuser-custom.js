@@ -338,14 +338,15 @@ $(document).on('click', '.delBtn', function (e) {
                 data: {_token: CSRF_TOKEN, id:id},
                 success: function (data) {
 
-                    swal("Deleted!", "User Blocked", "success");
+                    console.log(data);
+                    //swal("Deleted!", "User Blocked", "success");
                 //    $('#tr-'+data).hide('slow',function(){
 
                 //     $(this).remove();
 
 
                 //    });
-                window.location.reload();
+            //    window.location.reload();
                     }
             });
     });

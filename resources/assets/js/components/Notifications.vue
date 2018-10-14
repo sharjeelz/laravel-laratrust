@@ -1,7 +1,7 @@
 <template>
- <div class="messages-notifications os-dropdown-trigger os-dropdown-position-left"><i class="os-icon os-icon-mail-14"></i>
+ <div  class="messages-notifications os-dropdown-trigger os-dropdown-position-left"><i class="os-icon os-icon-mail-14"></i>
             <div class="new-messages-count" v-if="notifications.length > 0">{{notifications.length}}</div>
-            <div class="os-dropdown light message-list">
+            <div class="os-dropdown light message-list" v-if="notifications.length > 0">
                <ul>
                     <li  v-for="notification in notifications"><a href="#">
                             <div class="user-avatar-w"><i class="os-icon os-icon-arrow-right os-red"></i></div>
@@ -35,18 +35,31 @@ Vue.use(VueTimeago, {
   data() {
 
       return {
-            notifications:[]
+            notifications:[],
+            description:''
 
       }
   },
    mounted() {
 
-            Echo.channel('doctor-update').listen('DoctorEvent',(data)=>{
+            Echo.channel('user-update').listen('UserEvent',(data)=>{
 
+if (data.user != null ) {
 
+    this.description ='User '+data.user.name+' Has Been '+ data.event;
+}
+if (data.role != null ) {
+
+    this.description ='Role '+data.role.name+' Has Been '+ data.event;
+}
+
+if (data.permission != null ) {
+
+    this.description ='Permisssion '+data.permission.name+' Has Been '+ data.event;
+}
                     this.notifications.unshift({
 
-                    description :'Doctor '+data.doctor.name+' Has Been '+ data.event,
+                    description :this.description,
                     url: '/',
                     time: new Date()
                 })

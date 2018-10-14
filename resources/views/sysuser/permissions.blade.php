@@ -1,12 +1,13 @@
 @extends('layouts.app')
 @section('content')
+@section('title','Permissions')
 @section('css')
 <link href="{{asset('bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css')}}" rel="stylesheet">
 @endsection
 @section('bread')
 <ul class="breadcrumb">
 <li class="breadcrumb-item"><a href="{{url('/')}}"><span>Home</span></a></li>
-    <li class="breadcrumb-item"><a href="{{url('admin/users')}}"><span>Users</span></a></li>
+    <li class="breadcrumb-item"><a href="{{url('admin/users')}}"><span>User</span></a></li>
         <li class="breadcrumb-item"><a href="{{url('admin/permissions')}}">Permissions</a></li>
 </ul>
 

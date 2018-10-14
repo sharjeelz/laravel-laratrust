@@ -29,7 +29,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-
-            return view('home')->with(['total_users'=>Users::count()]);
+            $condition=['type'=>null];
+            return view('home')->with(['total_users'=>User::count(),'total_roles'=>Role::where($condition)->count(),'total_permissions'=>Permission::where($condition)->count()]);
     }
 }

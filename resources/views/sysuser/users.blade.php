@@ -5,7 +5,6 @@
 @section('css')
 <link href="{{asset('bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css')}}" rel="stylesheet">
 <link href="{{asset('css/custom.css')}}" rel="stylesheet">
-{{-- <link href="{{asset('css/dataTables.checkboxes.css')}}" rel="stylesheet"> --}}
 
 @endsection
 
@@ -190,13 +189,9 @@
 
 @section('js')
 <script src="{{asset('bower_components/datatables.net/js/jquery.dataTables.min.js')}}"></script>
-
-{{-- <script src="{{asset('js/dataTables.checkboxes.js')}}"></script> --}}
-
 <script src="{{asset('js/dataTables.bootstrap4.min.js')}}"></script>
-
-
 <script src="{{asset('js/sysuser-custom.js')}}"></script>
+
 
 
 @endsection

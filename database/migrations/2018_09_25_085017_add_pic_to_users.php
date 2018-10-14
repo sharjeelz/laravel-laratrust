@@ -15,7 +15,7 @@ class AddPicToUsers extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
 
-            $table->text('pic');
+            $table->text('pic')->nullable();
         });
     }
 

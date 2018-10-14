@@ -1,9 +1,10 @@
 @extends('layouts.app')
 @section('content')
+@section('title','Permission')
 @section('bread')
 <ul class="breadcrumb">
 <li class="breadcrumb-item"><a href="{{url('/')}}"><span>Home</span></a></li>
-<li class="breadcrumb-item"><a href="{{url('admin/users')}}"><span>Users</span></a></li>
+<li class="breadcrumb-item"><a href="{{url('admin/users')}}"><span>User</span></a></li>
         <li class="breadcrumb-item"><a href="{{url('admin/permissions')}}"><span>Permissions</span></a></li>
         <li class="breadcrumb-item"><a href="{{url('admin/permission/create')}}">Create Permission</a></li>
 

@@ -31,7 +31,7 @@ class UserTableSeeder extends Seeder
             'name' => 'Super Admin',
             'email' =>'admin@admin.com',
             'password' => bcrypt('123456'),
-            'pic'=>'avatars/images.jpg'
+            'pic'=>'avatars/noimage.png'
 
         ]);
 

@@ -33,7 +33,7 @@ START - Mobile Menu
                     <div class="icon-w">
                         <div class="os-icon os-icon-users"></div>
                     </div>
-                    <span>Users</span>
+                    <span>User</span>
                 </a>
                 <ul class="sub-menu">
                     <li><a href="{{url('admin/users')}}">Users</a></li>
@@ -67,11 +67,11 @@ START - Main Menu
                 <div class="icon-w">
                     <div class="os-icon os-icon-users"></div>
                 </div>
-                <span>Users</span>
+                <span>User</span>
             </a>
 
             <div class="sub-menu-w">
-                <div class="sub-menu-header">Users</div>
+                <div class="sub-menu-header">User Management</div>
                 <div class="sub-menu-icon">
                     <i class="os-icon os-icon-layout"></i>
                 </div>

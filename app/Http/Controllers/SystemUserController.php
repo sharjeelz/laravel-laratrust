@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\User;
-use App\Permission;
-use App\Role;
-use Auth;
 use DB;
-use DateTime;
+use Auth;
 use Mail;
-use App\Mail\Mailer;
-use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
+use App\Role;
+use App\User;
+use DateTime;
 use App\Hospital;
+use Carbon\Carbon;
+use App\Permission;
+use App\Mail\Mailer;
+use App\Events\UserEvent;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SystemUserController extends Controller
 {
-     /**
+    /**
      * Create a new controller instance.
      *
      * @return void
@@ -48,28 +49,26 @@ class SystemUserController extends Controller
     {
 
         $get_all_users = User::withTrashed()->get();
-        $all_roles=$this->getAllRoles();
-        $all_permissions=$this->getAllPermissions();
+        $all_roles = $this->getAllRoles();
+        $all_permissions = $this->getAllPermissions();
         $is_valid_to_send_reset_pass;
         foreach ($get_all_users->sortByDesc('created_at') as $user) {
 
-            $is_valid_to_send_reset_pass=$this->checkEmailForPassReset($user->email);
-            $user_data[]=array('users'=>$user,'pexpiry'=>$is_valid_to_send_reset_pass);
+            $is_valid_to_send_reset_pass = $this->checkEmailForPassReset($user->email);
+            $user_data[] = array('users' => $user, 'pexpiry' => $is_valid_to_send_reset_pass);
         }
 
-
-        return view('sysuser.users')->with(['data'=>$user_data,'roles'=>$all_roles,'permissions'=>$all_permissions]);
+        return view('sysuser.users')->with(['data' => $user_data, 'roles' => $all_roles, 'permissions' => $all_permissions]);
     }
 
-
-    public function sendEmail(Request $request,$to)
+    public function sendEmail(Request $request, $to)
     {
-        $user=User::withTrashed()->findOrFail($to);
+        $user = User::withTrashed()->findOrFail($to);
 
         Mail::to($user->email)
-        ->cc($request->input('cc'))
-        ->queue(new Mailer($request,$user->name)
-    );
+            ->cc($request->input('cc'))
+            ->queue(new Mailer($request, $user->name)
+            );
         $request->session()->flash('message.level', 'success');
         $request->session()->flash('message.content', 'Email Sent');
         return back();
@@ -78,13 +77,13 @@ class SystemUserController extends Controller
 
     public function checkEmailForPassReset($email)
     {
-        $results = DB::select( DB::raw("SELECT * FROM password_resets WHERE email = '$email'") );
+        $results = DB::select(DB::raw("SELECT * FROM password_resets WHERE email = '$email'"));
 
         if (!empty($results)) {
 
-            $created_at=$results[0]->created_at;
-            $current_date=new DateTime();
-            $created_at=new DateTime($created_at);
+            $created_at = $results[0]->created_at;
+            $current_date = new DateTime();
+            $created_at = new DateTime($created_at);
             $since_start = $created_at->diff($current_date);
             $minutes = $since_start->days * 24 * 60;
             $minutes += $since_start->h * 60;
@@ -93,19 +92,16 @@ class SystemUserController extends Controller
             if ($minutes > env('PASSWORD_EXPIRE_MINUTES')) {
 
                 return true;
-            }
-                else {
+            } else {
 
-                    return false;
-                }
-        }
-        else {
+                return false;
+            }
+        } else {
 
             // user is never asked for changing password
             return true;
         }
     }
-
 
     /**
      * Display a listing of the System Permissions.
@@ -115,12 +111,13 @@ class SystemUserController extends Controller
     public function Permissionsindex()
     {
         $condition = ['type' => null];
-        $get_all_permissions=Permission::where($condition)->get()->sortByDesc('created_at');
+        $get_all_permissions = Permission::where($condition)->get()->sortByDesc('created_at');
 
         return view('sysuser.permissions')->withPermissions($get_all_permissions);
     }
 
-     /**
+
+    /**
      * Display a listing of the System Roles.
      *
      * @return \Illuminate\Http\Response
@@ -128,13 +125,48 @@ class SystemUserController extends Controller
     public function Rolesindex()
     {
         $condition = ['type' => null];
-        $get_all_roles=Role::where($condition)->get()->sortByDesc('created_at');
-
+        $get_all_roles = Role::where($condition)->get()->sortByDesc('created_at');
         return view('sysuser.roles')->withRoles($get_all_roles);
     }
 
+    /**
+     * Show the form for creating a new Role.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function createRole()
+    {
+        return view('sysuser.create-role');
+    }
 
-     /**
+    /**
+     * Store Role
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function storeRole(Request $request)
+    {
+        $role = new Role();
+        $role->name = $request->get('name');
+        $role->display_name = $request->get('display_name');
+        $role->description = $request->get('description');
+        $role->save();
+        event(new UserEvent($role, UserEvent::ADDED));
+        return redirect('admin/roles');
+    }
+
+    public function destroyRole(Request $request)
+    {
+        $role_id = $request->get('id');
+        $role = Role::find($role_id);
+        $event = 'Deleted';
+        event(new UserEvent($role, UserEvent::DELETED));
+        $role->delete();
+        return $role_id;
+    }
+
+    /**
      * Assign Roles To User
      *
      * @return \Illuminate\Http\Response
@@ -143,26 +175,24 @@ class SystemUserController extends Controller
     {
         $params = array();
         parse_str($request->get('data'), $params);
-        if(isset($params['user_roles'])) {
-            $roles_user=$params['user_roles'];
-        }
-        else {
+        if (isset($params['user_roles'])) {
+            $roles_user = $params['user_roles'];
+        } else {
 
-            $roles_user=[];
+            $roles_user = [];
         }
 
-        $user_id=$params['user_id'];
-        $user=User::find($user_id);
+        $user_id = $params['user_id'];
+        $user = User::find($user_id);
 
         if ($user) {
-            $guest= Role::where('name', '=', 'guest')->first();
+            $guest = Role::where('name', '=', 'guest')->first();
             $user->syncRoles($roles_user);
             $user->attachRole($guest);
             return $user_id;
-      }
-      else {
-          return '0';
-      }
+        } else {
+            return '0';
+        }
     }
 
     /**
@@ -174,36 +204,25 @@ class SystemUserController extends Controller
     {
         $params = array();
         parse_str($request->get('data'), $params);
-        $user_id=$params['user_id'];
-        $user=User::find($user_id);
+        $user_id = $params['user_id'];
+        $user = User::find($user_id);
         if ($user) {
 
             if (empty($params['user_permissions'])) {
 
-                $user->detachPermissions(NULL);
-            }
-            else {
-                $permission_user=$params['user_permissions'];
+                $user->detachPermissions(null);
+            } else {
+                $permission_user = $params['user_permissions'];
                 $user->syncPermissions($permission_user);
                 return $user_id;
 
             }
-      }
-      else {
-          return '0';
-      }
+        } else {
+            return '0';
+        }
     }
 
-    /**
-     * Show the form for creating a new Role.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function createRole()
-    {
 
-        return view('sysuser.create-role');
-    }
 
     /**
      * Show the form for creating a new Permission.
@@ -215,7 +234,6 @@ class SystemUserController extends Controller
 
         return view('sysuser.create-permission');
     }
-
 
     /**
      * Show the form for creating a new User.
@@ -236,10 +254,10 @@ class SystemUserController extends Controller
     public function userProfile($user_id)
     {
 
-         $user=User::withTrashed()->findOrFail($user_id);
+        $user = User::withTrashed()->findOrFail($user_id);
         if ($user) {
             return view('sysuser.user')->withUser($user);
-           }
+        }
     }
 
     /**
@@ -247,121 +265,94 @@ class SystemUserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function userProfileUpdate(Request $request,$id)
+    public function userProfileUpdate(Request $request, $id)
     {
         $input = $request->all();
 
-
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,'.$id,
-            'pic'=>'mimes:jpeg,jpg,png,gif|max:10000',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'pic' => 'mimes:jpeg,jpg,png,gif|max:10000',
         ]);
-
-
 
         if ($request->hasFile('pic')) {
 
             $path = $request->file('pic')->store(
                 'avatars', 'public'
             );
+        } else {
+            $path = 'avatars/noimage.png';
         }
-        else {
-            $path='avatars/noimage.png';
-        }
-        $user=User::withTrashed()->findOrFail($id);
-        $user->name=$input['name'];
-        $user->email=$input['email'];
+        $user = User::withTrashed()->findOrFail($id);
+        $user->name = $input['name'];
+        $user->email = $input['email'];
 
         if ($request->hasFile('pic')) {
-        $user->pic=$path;
+            $user->pic = $path;
         }
         $user->save();
 
-        if($request->has('h_name')){
-
+        if ($request->has('h_name')) {
 
             $validatedData = $request->validate([
-                'h_name'=>'required|string|max:255',
-                'h_contact_number'=>'required|string|max:12',
-                'h_email'=>'email|required',
-                'h_address'=>'string|required|max:255',
+                'h_name' => 'required|string|max:255',
+                'h_contact_number' => 'required|string|max:12',
+                'h_email' => 'email|required',
+                'h_address' => 'string|required|max:255',
             ]);
 
-        if ($user->hospital==null) {
+            if ($user->hospital == null) {
 
-             //saving hospital info
-         $hospital= new Hospital();
-         $hospital->name=$input['h_name'];
-         $hospital->contact_number=$input['h_contact_number'];
-         $hospital->email=$input['h_email'];
-         $hospital->address=$input['h_address'];
+                //saving hospital info
+                $hospital = new Hospital();
+                $hospital->name = $input['h_name'];
+                $hospital->contact_number = $input['h_contact_number'];
+                $hospital->email = $input['h_email'];
+                $hospital->address = $input['h_address'];
 
-         if ($request->hasFile('h_pic')) {
+                if ($request->hasFile('h_pic')) {
 
-            $path = $request->file('h_pic')->store(
-                'avatars', 'public'
-            );
-            $hospital->logo=$path;
-        }
-        else {
-            $path='avatars/noimage.png';
-            $hospital->logo=$path;
-        }
+                    $path = $request->file('h_pic')->store(
+                        'avatars', 'public'
+                    );
+                    $hospital->logo = $path;
+                } else {
+                    $path = 'avatars/noimage.png';
+                    $hospital->logo = $path;
+                }
 
-        $user->hospital()->save($hospital);
-        }
-        else {
+                $user->hospital()->save($hospital);
+            } else {
 
+                $hospital = Hospital::find($user->hospital->id);
+                $hospital->name = $input['h_name'];
+                $hospital->contact_number = $input['h_contact_number'];
+                $hospital->email = $input['h_email'];
+                $hospital->address = $input['h_address'];
+                if ($request->hasFile('h_pic')) {
 
-            $hospital= Hospital::find($user->hospital->id);
-            $hospital->name=$input['h_name'];
-            $hospital->contact_number=$input['h_contact_number'];
-            $hospital->email=$input['h_email'];
-            $hospital->address=$input['h_address'];
-            if ($request->hasFile('h_pic')) {
+                    $path = $request->file('h_pic')->store(
+                        'avatars', 'public'
+                    );
+                    $hospital->logo = $path;
+                } else {
+                    $path = 'avatars/noimage.png';
+                }
 
-                $path = $request->file('h_pic')->store(
-                    'avatars', 'public'
-                );
-                $hospital->logo=$path;
+                $user->hospital()->save($hospital);
+
             }
-            else {
-                $path='avatars/noimage.png';
-            }
-
-            $user->hospital()->save($hospital);
 
         }
-
-    }
 
         $request->session()->flash('message.level', 'success');
         $request->session()->flash('message.content', 'User Updated');
         return redirect()->back();
-        }
+    }
 
 
 
     /**
-     * Store Role
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function storeRole(Request $request)
-    {
-
-       $new_role= new Role();
-       $new_role->name=$request->get('name');
-       $new_role->display_name=$request->get('display_name');
-       $new_role->description=$request->get('description');
-       $new_role->save();
-       return redirect('admin/roles');
-
-    }
-
-     /**
      * Store Permission
      *
      * @param  \Illuminate\Http\Request  $request
@@ -370,13 +361,13 @@ class SystemUserController extends Controller
     public function storePermission(Request $request)
     {
 
-       $new_role= new Permission();
-       $new_role->name=$request->get('name');
-       $new_role->display_name=$request->get('display_name');
-       $new_role->description=$request->get('description');
-       $new_role->save();
-       return redirect('admin/permissions');
-
+        $permission = new Permission();
+        $permission->name = $request->get('name');
+        $permission->display_name = $request->get('display_name');
+        $permission->description = $request->get('description');
+        $permission->save();
+        event(new UserEvent($permission, UserEvent::ADDED));
+        return redirect('admin/permissions');
     }
 
     /**
@@ -413,56 +404,52 @@ class SystemUserController extends Controller
         //
     }
 
-
     public function destroyUser(Request $request)
     {
-        $user_id=$request->get('id');
-         //soft delete
-        $user=User::find($user_id);
-       // $user->detachRoles($user->roles);
-        //$user->detachPermissions($user->permissions);
+        $user_id = $request->get('id');
+        //soft delete
+        $user = User::find($user_id);
         $user->delete();
-
+        event(new UserEvent($user, UserEvent::BLOCKED));
         return $user_id;
-
-
     }
 
     public function destroyUsers(Request $request)
     {
-        $user_id=$request->get('data');
-         //soft delete
-         foreach($user_id as $uid){
+        $user_id = $request->get('data');
+        //soft delete
+        foreach ($user_id as $uid) {
 
-            $user=User::find($uid);
+            $user = User::find($uid);
             $user->delete();
 
-         }
+        }
+
+        event(new UserEvent($user, UserEvent::BLOCKED));
+
 
         return '0';
 
-
     }
-
 
     public function exportUsers(Request $request)
     {
-        $data=$request->get('data');
-        $filename="users-".Carbon::today()->toDateString().".csv";
-        $ids=explode(',',$data[0]);
-        $users=[];
-        $csvExporter = new \Laracsv\Export(null,$filename);
-        $users=User::withTrashed()->find($ids);
-        $csvExporter->build($users, ['email', 'name','created_at','updated_at','deleted_at','pic'])->download();
+        $data = $request->get('data');
+        $filename = "users-" . Carbon::today()->toDateString() . ".csv";
+        $ids = explode(',', $data[0]);
+        $users = [];
+        $csvExporter = new \Laracsv\Export(null, $filename);
+        $users = User::withTrashed()->find($ids);
+        $csvExporter->build($users, ['email', 'name', 'created_at', 'updated_at', 'deleted_at', 'pic'])->download();
         return redirect('admin/users');
 
     }
     public function exportLogins($id)
     {
-        $auth_logs=User::withTrashed()->find($id)->authentications;
-        $filename="Login-Logout-activity-of-".str_replace(' ', '', $auth_logs[0]->authenticatable->name).".csv";
-        $csvExporter = new \Laracsv\Export(null,$filename);
-        $csvExporter->build($auth_logs, ['authenticatable.name'=>'Name' ,'authenticatable.email'=>'Email','ip_address','login_at','logout_at'])->download();
+        $auth_logs = User::withTrashed()->find($id)->authentications;
+        $filename = "Login-Logout-activity-of-" . str_replace(' ', '', $auth_logs[0]->authenticatable->name) . ".csv";
+        $csvExporter = new \Laracsv\Export(null, $filename);
+        $csvExporter->build($auth_logs, ['authenticatable.name' => 'Name', 'authenticatable.email' => 'Email', 'ip_address', 'login_at', 'logout_at'])->download();
         return back();
 
     }
@@ -470,57 +457,45 @@ class SystemUserController extends Controller
     public function restoreUsers(Request $request)
     {
 
-        $user_id=$request->get('data');
-         //soft delete
-         foreach($user_id as $uid){
+        $user_id = $request->get('data');
+        //soft delete
+        foreach ($user_id as $uid) {
 
-            $user=User::withTrashed()->find($uid);
+            $user = User::withTrashed()->find($uid);
             $user->restore();
 
-         }
+        }
+
+        event(new UserEvent($user, UserEvent::RESTORED));
 
         return '0';
-
-
-    }
-
-
-    public function destroyRole(Request $request)
-    {
-        $role_id=$request->get('id');
-         //soft delete
-        $role=Role::find($role_id);
-        $role->delete();
-        return $role_id;
-
 
     }
 
     public function destroyPermission(Request $request)
     {
-        $permission_id=$request->get('id');
-         //soft delete
-        $permission=Permission::find($permission_id);
+        $permission_id = $request->get('id');
+        $permission = Permission::find($permission_id);
+        event(new UserEvent($permission, UserEvent::DELETED));
         $permission->delete();
         return $permission_id;
 
-
     }
-
 
     public function getUsersByRole($id)
     {
-        $get_all_roles=Role::find($id);
+        $get_all_roles = Role::find($id);
         $users = User::whereRoleIs($get_all_roles->name)->get();
         return view('sysuser.roles')->withRoles($get_all_roles);
     }
 
-
     public function restoreUser(Request $request)
     {
-        $user_id=$request->get('id');
-        $user=User::withTrashed()->find($user_id);
+        $user_id = $request->get('id');
+        $user = User::withTrashed()->find($user_id);
         $user->restore();
+        $event = 'Restored';
+        event(new UserEvent($user, $event));
         return $user_id;
 
     }

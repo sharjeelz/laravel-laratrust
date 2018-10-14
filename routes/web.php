@@ -44,22 +44,6 @@ function() {
 
 });
 
-//Module Wise Allocation to Users
-
-//Doctors Routes
-
-Route::resource('doctors', 'DoctorController')->middleware('ability:'.env('USER_ROLE').'|Admin,'.env('USER_PERMISSION').'|access-doctors');
-Route::post('doctors/restore','DoctorController@restore');
-Route::post('doctors/massrestore','DoctorController@massRestore');
-Route::post('doctors/massdestroy','DoctorController@massDestroy');
-Route::post('export/doctors', 'DoctorController@exportDoctors');
-
-
-
-
-Route::resource('patients','PatientController')->middleware('ability:'.env('USER_ROLE').'|Admin,'.env('USER_PERMISSION').'|access-patients');
-
-
 
 //public routes
 Route::post('password/reset', 'Auth\ResetPasswordController@reset');

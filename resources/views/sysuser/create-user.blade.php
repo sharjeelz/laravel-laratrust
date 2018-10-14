@@ -1,6 +1,16 @@
 @extends('layouts.app')
 @section('content')
+@section('title','Create User')
+@section('bread')
+<ul class="breadcrumb">
+<li class="breadcrumb-item"><a href="{{url('/')}}"><span>Home</span></a></li>
+<li class="breadcrumb-item"><a href="{{url('admin/users')}}"><span>User</span></a></li>
+        <li class="breadcrumb-item"><a href="{{url('admin/permissions')}}"><span>Users</span></a></li>
+        <li class="breadcrumb-item"><a href="{{url('admin/permission/create')}}">Create User</a></li>
 
+</ul>
+
+@endsection
 @section('css')
 
 <link href="{{asset('bower_components/select2/dist/css/select2.min.css')}}" rel="stylesheet">

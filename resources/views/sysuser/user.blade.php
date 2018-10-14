@@ -8,7 +8,7 @@
 @section('bread')
 <ul class="breadcrumb">
 <li class="breadcrumb-item"><a href="{{url('/')}}"><span>Home</span></a></li>
-        <li class="breadcrumb-item"><a href="{{url('admin/users')}}"><span>Users</span></a></li>
+        <li class="breadcrumb-item"><a href="{{url('admin/users')}}"><span>User</span></a></li>
         <li class="breadcrumb-item"><a href="{{url('admin/user/profile/edit/'.$user->id)}}">Profile</a></li>
 </ul>
 
@@ -93,7 +93,7 @@
                                 </div>
                             </form>
                         </div>
-                    <div class="up-contents">
+                    {{-- <div class="up-contents">
                         <div class="m-b">
                             <div class="row m-b">
                                 <div class="col-sm-6 b-r b-b">
@@ -151,7 +151,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
 
                 <div class="element-wrapper">
@@ -297,87 +297,7 @@
 
 
                                 </div>
-                                @if(Auth::user()->id==$user->id)
-                            <fieldset class="form-group">
-                                <legend>
-                                    <span>Hospital Details</span></legend>
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                            <div class="form-group">
-                                                    <label for="">Name</label>
 
-                                                    <input class="form-control{{ $errors->has('h_name') ? ' is-invalid' : '' }}"  placeholder="Hospital Name" required="required" type="text" name="h_name" value="@if(isset($user->hospital->name)){{$user->hospital->name}}@endif">
-
-                                                    @if ($errors->has('h_name'))
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $errors->first('h_name') }}</strong>
-                                                </span>
-                                            @endif
-                                                </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                            <div class="form-group">
-                                                    <label for="">Contact</label>
-
-                                                    <input class="form-control{{ $errors->has('h_contact_number') ? ' is-invalid' : '' }}"  placeholder="Contact Number" required="required" type="number" name="h_contact_number" value="@if(isset($user->hospital->contact_number)){{$user->hospital->contact_number}}@endif">
-
-                                                    @if ($errors->has('h_contact_number'))
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $errors->first('h_contact_number') }}</strong>
-                                                </span>
-                                            @endif
-                                                </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                        <div class="col-sm-6">
-                                                <div  class="form-group"><label class="logo_hover" style="background-image:url('{{asset('storage/'.Auth::user()->hospital->logo)}}'); background-repeat: no-repeat;background-size: 100px 100px;height:100px; width:100px;"  for="h_logo"></label>
-                                                    <input class="form-control{{ $errors->has('h_logo') ? ' is-invalid' : '' }}" id="h_logo" style="visibility:hidden" type="file" name="h_pic"/>
-                                                    <div class="help-block form-text with-errors form-control-feedback"></div>
-                                                    @if ($errors->has('h_logo'))
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $errors->first('h_logo') }}</strong>
-                                                    </span>
-                                                @endif
-                                                </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="">
-                                                        Email</label><input name="h_email" class="form-control{{ $errors->has('h_email') ? ' is-invalid' : '' }}" required data-error="Please input Valid Email" placeholder="Email" type="email" value="@if(isset($user->hospital->email)){{$user->hospital->email}}@endif" ></div>
-                                                        <div class="help-block form-text with-errors form-control-feedback"></div>
-                                                        @if ($errors->has('h_email'))
-                                                        <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $errors->first('h_email') }}</strong>
-                                                        </span>
-                                                    @endif
-                                            </div>
-
-
-                                    </div>
-                                <div class="row">
-                                        <div class="col-sm-12">
-                                        <div class="form-group">
-                                                <label>
-                                                    Address</label>
-                                                <textarea  name="h_address"  required class="form-control{{ $errors->has('h_address') ? ' is-invalid' : '' }}" rows="3">@if(isset($user->hospital->address)){{$user->hospital->address}}@endif</textarea>
-                                                <div class="help-block form-text with-errors form-control-feedback"></div>
-                                                @if ($errors->has('h_address'))
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $errors->first('h_address') }}</strong>
-                                                </span>
-                                            @endif
-                                            </div>
-                                        </div>
-
-                                </div>
-
-
-                            </fieldset>
-                            @endif
-                            {{-- <div class="form-check">
-                                <label class="form-check-label"><input class="form-check-input" type="checkbox">I agree to terms and conditions</label>
-                            </div> --}}
 
                             <div class="form-buttons-w">
                                 <button class="btn btn-primary" type="submit">

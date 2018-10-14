@@ -66,9 +66,6 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        // echo '<pre>';
-        // var_dump($data['pic']);
-        // exit;
 
         if(isset($data['pic'])) {
 

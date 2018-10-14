@@ -5,14 +5,8 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="{{asset('bower_components/select2/dist/css/select2.min.css')}}" rel="stylesheet">
-        <link href="{{asset('bower_components/bootstrap-daterangepicker/daterangepicker.css')}}" rel="stylesheet">
-        <link href="{{asset('bower_components/dropzone/dist/dropzone.css')}}" rel="stylesheet">
-        <link href="{{asset('bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css')}}" rel="stylesheet">
-        <link href="{{asset('bower_components/fullcalendar/dist/fullcalendar.min.css')}}" rel="stylesheet">
-        <link href="{{asset('bower_components/perfect-scrollbar/css/perfect-scrollbar.min.css')}}" rel="stylesheet">
-        <link href="{{asset('bower_components/slick-carousel/slick/slick.css')}}" rel="stylesheet">
-        {{-- <link href="{{asset('css/fonts.css')}}" rel="stylesheet" type="text/css"> --}}
+        <link href="{{asset('css/maince5a.css')}}" rel="stylesheet" type="text/css">
+        <link href="{{asset('css/fonts.css')}}" rel="stylesheet" type="text/css">
         <link rel="stylesheet" href="{{asset('css/app.css')}}" crossorigin="anonymous">
 
     </head>
