@@ -7,7 +7,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laratrust\Traits\LaratrustUserTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Yadahan\AuthenticationLog\AuthenticationLogable;
-use App\Patient;
 
 
 
@@ -49,10 +48,5 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
-
-    public function hospital()
-    {
-        return $this->hasOne('App\Hospital');
-    }
 
 }
