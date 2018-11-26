@@ -1,0 +1,8 @@
+version: 0.1
+phases:
+  pre_build:
+    commands:
+      - composer update
+  build:
+    commands:
+      - php artisan serve
