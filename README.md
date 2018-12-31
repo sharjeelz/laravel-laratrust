@@ -17,3 +17,5 @@ Laratrust (5.6) CMS
 # Let me know if you have any issues
 I am still developing Events Section where notification will fly around on any action performed on this CMS using VUE, Pusher.
 
+If you want to go step by step. See the link below for basic Laratrust CMS
+http://portfolio.sharjeelz.com/laratrust-cms
